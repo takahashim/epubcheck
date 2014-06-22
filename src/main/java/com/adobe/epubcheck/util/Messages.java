@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2011 Adobe Systems Incorporated
+ * Copyright (c) 2012 International Digital Publishing Forum
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy of
  *  this software and associated documentation files (the "Software"), to deal in
@@ -22,13 +23,26 @@
 
 package com.adobe.epubcheck.util;
 
-import com.adobe.epubcheck.api.EpubCheck;
+import com.google.common.base.Charsets;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.text.MessageFormat;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.PropertyResourceBundle;
+import java.util.ResourceBundle;
+import java.util.ResourceBundle.Control;
 
 public class Messages {
 
   public static final String SINGLE_FILE = "File is validated as a single file of type %1$s and version %2$s. Only a subset of the available tests is run.";
 
-  public static String OPV_VERSION_TEST = "*** Candidate for msg deletion *** Tests are performed only for the OPF version.";
+  public static final String OPV_VERSION_TEST = "*** Candidate for msg deletion *** Tests are performed only for the OPF version.";
 
   public static final String MODE_VERSION_NOT_SUPPORTED = "The checker doesn't validate type %1$s and version %2$s.";
 
@@ -104,5 +118,85 @@ public class Messages {
           "\n" +
           "-h, -? or --help = displays this help message\n";
 
+
+  private static final String BUNDLE_NAME = "com.adobe.epubcheck.util.messages"; //$NON-NLS-1$
+  private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault(), new UTF8Control());
+
+  private Messages()
+  {
+  }
+
+  public static String get(String key)
+  {
+    try
+    {
+      return RESOURCE_BUNDLE.getString(key);
+    }
+    catch (MissingResourceException e)
+    {
+      return key;
+    }
+  }
+
+  public static String get(String key, Object... arguments)
+  {
+    try
+    {
+      return MessageFormat.format(RESOURCE_BUNDLE.getString(key), arguments);
+    }
+    catch (MissingResourceException e)
+    {
+      return key;
+    }
+  }
+
+  private static class UTF8Control extends Control
+  {
+    public ResourceBundle newBundle
+        (String baseName, Locale locale, String format, ClassLoader loader, boolean reload)
+        throws
+        IllegalAccessException,
+        InstantiationException,
+        IOException
+    {
+      // The below is a copy of the default implementation.
+      String bundleName = toBundleName(baseName, locale);
+      String resourceName = toResourceName(bundleName, "properties"); //$NON-NLS-1$
+      ResourceBundle bundle = null;
+      InputStream stream = null;
+      if (reload)
+      {
+        URL url = loader.getResource(resourceName);
+        if (url != null)
+        {
+          URLConnection connection = url.openConnection();
+          if (connection != null)
+          {
+            connection.setUseCaches(false);
+            stream = connection.getInputStream();
+          }
+        }
+      }
+      else
+      {
+        stream = loader.getResourceAsStream(resourceName);
+      }
+      if (stream != null)
+      {
+        try
+        {
+          // Only this line is changed to make it to read properties files as UTF-8.
+          bundle = new PropertyResourceBundle(
+              new BufferedReader(
+                  new InputStreamReader(stream, Charsets.UTF_8)));
+        }
+        finally
+        {
+          stream.close();
+        }
+      }
+      return bundle;
+    }
+  }
 
 }

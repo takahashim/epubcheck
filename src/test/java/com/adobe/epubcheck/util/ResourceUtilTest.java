@@ -22,6 +22,7 @@
 
 package com.adobe.epubcheck.util;
 
+import com.adobe.epubcheck.util.Messages;
 import com.adobe.epubcheck.messages.MessageId;
 import com.adobe.epubcheck.messages.MessageLocation;
 import com.adobe.epubcheck.opf.VersionRetriever;

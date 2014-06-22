@@ -47,9 +47,6 @@ public class command_line_Test
     Checker checker = new Checker();
     Assert.assertTrue("Checker string isn't as expected", checker.toString().startsWith("com.adobe.epubcheck.tool.Checker"));
 
-    Messages messages = new Messages();
-    Assert.assertTrue("Messages string isn't as expected", messages.toString().startsWith("com.adobe.epubcheck.util.Messages"));
-
     EpubTypeAttributes attributes = new EpubTypeAttributes();
     Assert.assertTrue("EpubTypeAttributes string isn't as expected", attributes.toString().startsWith("com.adobe.epubcheck.util.EpubTypeAttributes"));
 
